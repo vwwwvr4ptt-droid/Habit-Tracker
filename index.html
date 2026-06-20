@@ -7,27 +7,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --green-dark: #3B6D11;
-  --green-mid: #639922;
-  --green-light: #EAF3DE;
-  --terra: #D85A30;
-  --terra-light: #FAECE7;
-  --amber: #BA7517;
-  --amber-light: #FAEEDA;
-  --cream: #F7F4ED;
-  --warm-gray: #444441;
-  --warm-gray-light: #888780;
-  --off-white: #F1EFE8;
-  --bg: #F7F4ED;
-  --card: #FFFFFF;
-  --border: #D3D1C7;
-  --text: #2C2C2A;
-  --text-muted: #5F5E5A;
-  --text-light: #888780;
-  --red: #C0392B;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --green-dark: #3B6D11; --green-mid: #639922; --green-light: #EAF3DE;
+  --terra: #D85A30; --terra-light: #FAECE7; --amber: #BA7517; --amber-light: #FAEEDA;
+  --off-white: #F1EFE8; --bg: #F7F4ED; --card: #FFFFFF; --border: #D3D1C7;
+  --text: #2C2C2A; --text-muted: #5F5E5A; --text-light: #888780; --red: #C0392B;
+  --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
@@ -46,7 +30,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .pin-key .letters { font-size: 9px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-top: 2px; }
 .pin-key.empty { background: transparent; cursor: default; }
 .pin-error { color: #EF9F9F; font-size: 13px; margin-top: 16px; min-height: 18px; }
-#sync-bar { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; padding: 6px 16px; font-size: 12px; text-align: center; transition: all 0.3s; display: none; }
+#sync-bar { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; padding: 6px 16px; font-size: 12px; text-align: center; display: none; }
 #sync-bar.syncing { display: block; background: var(--amber-light); color: var(--amber); }
 #sync-bar.saved { display: block; background: var(--green-light); color: var(--green-dark); }
 #sync-bar.error { display: block; background: var(--terra-light); color: var(--terra); }
@@ -332,61 +316,29 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
 </div>
 
 <script>
-const SUPABASE_URL = 'https://sxoxqqfnvofiijodkjug.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_mOJAMeZyXXie-rWGvNKQFg_aSdsYG5I';
-const PIN = '0056';
+const SUPABASE_URL='https://sxoxqqfnvofiijodkjug.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4b3hxcWZudm9maWlqb2RranVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Njc2ODQsImV4cCI6MjA5NzU0MzY4NH0.X0Y0T8MNwlSpEJ0XP8rJ4-p2JqYWveQqV8WbgblVwZo';
+const PIN='0056';
 
-async function sbFetch(method, path, body) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method,
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'resolution=merge-duplicates,return=representation' : 'return=representation'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!res.ok) { const err = await res.text(); throw new Error(err); }
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
+async function sbFetch(method,path,body){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{method,headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=representation':'return=representation'},body:body?JSON.stringify(body):undefined});
+  if(!res.ok){const err=await res.text();throw new Error(err);}
+  const text=await res.text();return text?JSON.parse(text):null;
 }
-
-async function loadAllLogs() {
-  showSyncBar('syncing', 'Syncing...');
-  const rows = await sbFetch('GET', 'habit_logs?select=*&order=date.desc&limit=120');
-  const map = {};
-  (rows||[]).forEach(r => { map[r.date] = r; });
-  hideSyncBarSoon();
-  return map;
-}
-
-async function upsertLog(log) {
-  showSyncBar('syncing', 'Saving...');
-  await sbFetch('POST', 'habit_logs', log);
-  showSyncBar('saved', 'Saved ✓');
-  hideSyncBarSoon();
-}
+async function loadAllLogs(){showSyncBar('syncing','Syncing...');const rows=await sbFetch('GET','habit_logs?select=*&order=date.desc&limit=120');const map={};(rows||[]).forEach(r=>{map[r.date]=r;});hideSyncBarSoon();return map;}
+async function upsertLog(log){showSyncBar('syncing','Saving...');await sbFetch('POST','habit_logs',log);showSyncBar('saved','Saved ✓');hideSyncBarSoon();}
 
 let syncTimer;
-function showSyncBar(type, msg) {
-  const bar = document.getElementById('sync-bar');
-  bar.className = type; bar.textContent = msg; clearTimeout(syncTimer);
-}
-function hideSyncBarSoon() {
-  syncTimer = setTimeout(() => {
-    const bar = document.getElementById('sync-bar');
-    bar.className = ''; bar.style.display='none'; bar.style.display='';
-  }, 2000);
-}
+function showSyncBar(type,msg){const bar=document.getElementById('sync-bar');bar.className=type;bar.textContent=msg;clearTimeout(syncTimer);}
+function hideSyncBarSoon(){syncTimer=setTimeout(()=>{const bar=document.getElementById('sync-bar');bar.className='';bar.style.display='none';bar.style.display='';},2000);}
 
-let cache = {};
-function todayKey() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function getLog(key) { return cache[key] || {}; }
+let cache={};
+function todayKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function dateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getLog(key){return cache[key]||{};}
 
-const HABITS = {
-  daily: [
+const HABITS={
+  daily:[
     {id:'pray',name:'Pray / meditate',meta:'Daily goal',good:true},
     {id:'read',name:'Read',meta:'Daily goal',good:true},
     {id:'journal',name:'Journal',meta:'Daily goal',good:true},
@@ -395,28 +347,28 @@ const HABITS = {
     {id:'social',name:'Social connection',meta:'Call or meaningful interaction',good:true},
     {id:'sunlight',name:'Sunlight / outside',meta:'30 min minimum',good:true},
   ],
-  quantity: [
+  quantity:[
     {id:'water',name:'Water intake',meta:'Goal: 64 oz',unit:'oz',goal:64,good:true},
     {id:'sleep',name:'Sleep',meta:'Goal: 8 hours',unit:'hrs',goal:8,good:true},
     {id:'steps',name:'Steps',meta:'Goal: 10,000',unit:'steps',goal:10000,good:true},
   ],
-  weekly: [
+  weekly:[
     {id:'gym',name:'Gym',meta:'Goal: 5× per week',good:true},
     {id:'yoga',name:'Yoga',meta:'Goal: daily',good:true},
   ],
-  avoid: [
+  avoid:[
     {id:'youtube',name:'YouTube',meta:'Goal: under 60 min',unit:'min',goal:60,good:false,avoidOver:true},
     {id:'alcohol',name:'Alcohol',meta:'Zero tolerance',good:false},
     {id:'pmo',name:'Porn / masturbation',meta:'Zero tolerance',good:false},
   ],
-  track: [
+  track:[
     {id:'caffeine',name:'Caffeine',meta:'Goal: under 200mg',unit:'mg',goal:200,good:false,avoidOver:true},
     {id:'nicotine',name:'Nicotine pouches',meta:'Track count (no goal yet)',good:false,counter:true},
   ]
 };
 
-function scoreDay(log) {
-  if (!log || Object.keys(log).filter(k=>!['date','id','created_at','updated_at'].includes(k)).length===0) return null;
+function scoreDay(log){
+  if(!log||Object.keys(log).filter(k=>!['date','id','created_at','updated_at'].includes(k)).length===0)return null;
   let pts=0,total=0,penalty=false;
   HABITS.daily.forEach(h=>{total++;if(log[h.id])pts++;});
   total++;if((log.water||0)>=64)pts++;
@@ -435,7 +387,7 @@ function scoreDay(log) {
   else if(pct>=75){grade='B+';color='green';}else if(pct>=65){grade='B';color='yellow';}
   else if(pct>=55){grade='C';color='yellow';}else if(pct>=50){grade='D';color='yellow';}
   else{grade='F';color='red';}
-  return {pct,grade,color,penalty};
+  return{pct,grade,color,penalty};
 }
 
 let pinEntry='';
@@ -443,15 +395,8 @@ function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updatePinDots();if
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updatePinDots();document.getElementById('pin-error').textContent='';document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error'));}
 function updatePinDots(){for(let i=0;i<4;i++){const d=document.getElementById('d'+i);d.classList.toggle('filled',i<pinEntry.length);d.classList.remove('error');}}
 function checkPin(){
-  if(pinEntry===PIN){
-    document.getElementById('pin-screen').classList.add('hidden');
-    document.getElementById('loading-screen').classList.remove('hidden');
-    initApp();
-  } else {
-    document.querySelectorAll('.pin-dot').forEach(d=>{d.classList.remove('filled');d.classList.add('error');});
-    document.getElementById('pin-error').textContent='Incorrect PIN. Try again.';
-    setTimeout(()=>{pinEntry='';document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error'));document.getElementById('pin-error').textContent='';},900);
-  }
+  if(pinEntry===PIN){document.getElementById('pin-screen').classList.add('hidden');document.getElementById('loading-screen').classList.remove('hidden');initApp();}
+  else{document.querySelectorAll('.pin-dot').forEach(d=>{d.classList.remove('filled');d.classList.add('error');});document.getElementById('pin-error').textContent='Incorrect PIN. Try again.';setTimeout(()=>{pinEntry='';document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error'));document.getElementById('pin-error').textContent='';},900);}
 }
 
 function showPage(name,btn){
@@ -476,11 +421,7 @@ function renderDashboard(){
     document.getElementById('score-grade').textContent=score.grade;
     document.getElementById('score-pct').textContent=score.pct+'%';
     document.getElementById('score-status').textContent=score.pct>=75?'🟢 Great day — keep it going':score.pct>=50?'🟡 Decent day — room to improve':'🔴 Tough day — tomorrow is a new start';
-  } else {
-    document.getElementById('score-grade').textContent='—';
-    document.getElementById('score-pct').textContent='—';
-    document.getElementById('score-status').textContent="Log today's habits to get your score";
-  }
+  }else{document.getElementById('score-grade').textContent='—';document.getElementById('score-pct').textContent='—';document.getElementById('score-status').textContent="Log today's habits to get your score";}
   renderRing('ring-water',log.water||0,64,'#639922','rv-water',log.water||0);
   renderRing('ring-sleep',log.sleep||0,8,'#3B6D11','rv-sleep',log.sleep||0);
   renderRing('ring-caff',log.caffeine||0,200,(log.caffeine||0)<=200?'#639922':'#D85A30','rv-caff',log.caffeine||0);
@@ -497,14 +438,17 @@ function renderRing(canvasId,val,max,color,labelId,display){
 
 function renderStreaks(){
   const today=todayKey();
+  function hasLogged(log){if(!log)return false;return Object.keys(log).filter(x=>!['id','date','created_at','updated_at'].includes(x)).length>0;}
   function streak(id,avoid){
     let s=0,d=new Date();
-    if(avoid){if(!getLog(today)[id])s++;else return 0;}
-    else{if(getLog(today)[id])s++;else return 0;}
+    const todayLog=cache[today];
+    if(!hasLogged(todayLog))return 0;
+    if(avoid){if(!todayLog[id])s++;else return 0;}
+    else{if(todayLog[id])s++;else return 0;}
     d.setDate(d.getDate()-1);
     for(let i=0;i<365;i++){
       const k=dateKey(d),log=cache[k];
-      if(!log)break;
+      if(!log||!hasLogged(log))break;
       const val=log[id];
       if(avoid){if(val)break;else s++;}else{if(val)s++;else break;}
       d.setDate(d.getDate()-1);
@@ -520,11 +464,7 @@ function renderHabitDots(log){
   document.getElementById('habit-dots').innerHTML=items.map(i=>`<div class="habit-dot-item"><div class="hdot ${i.done?'done':'skip'}"></div><span class="hdot-label">${i.name}</span></div>`).join('');
 }
 
-function getInstallDate(){
-  let inst=localStorage.getItem('ht_install_date');
-  if(!inst){inst=todayKey();localStorage.setItem('ht_install_date',inst);}
-  return inst;
-}
+function getInstallDate(){let inst=localStorage.getItem('ht_install_date');if(!inst){inst=todayKey();localStorage.setItem('ht_install_date',inst);}return inst;}
 
 function getMissedDays(){
   const install=getInstallDate(),missed=[];
@@ -556,11 +496,7 @@ function closeMissedModal(){document.getElementById('missed-modal').classList.ad
 function goLogDate(key){closeMissedModal();logDateStr=key;showPage('log',document.querySelectorAll('.nav-tab')[2]);renderLogPage();}
 
 let logDateStr=todayKey();
-function changeLogDate(delta){
-  const d=new Date(logDateStr+'T12:00:00');d.setDate(d.getDate()+delta);
-  const nk=dateKey(d);if(nk>todayKey())return;
-  logDateStr=nk;renderLogPage();
-}
+function changeLogDate(delta){const d=new Date(logDateStr+'T12:00:00');d.setDate(d.getDate()+delta);const nk=dateKey(d);if(nk>todayKey())return;logDateStr=nk;renderLogPage();}
 
 function renderLogPage(){
   const log=getLog(logDateStr),d=new Date(logDateStr+'T12:00:00');
@@ -575,31 +511,13 @@ function renderLogPage(){
   document.getElementById('daily-note').value=log.note||'';
 }
 
-function cbRow(h,log){
-  const checked=!!log[h.id],isBad=!h.good;
-  return `<div class="habit-row"><div class="habit-checkbox ${checked?`checked ${isBad?'bad':'good'}`:''}" id="cb-${h.id}" onclick="toggleHabit('${h.id}','${isBad?'bad':'good'}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div><div class="habit-info"><div class="hname">${h.name}</div><div class="hmeta">${h.meta}</div></div></div>`;
-}
-function numRow(h,log){
-  const val=log[h.id]!=null?log[h.id]:'';
-  return `<div class="habit-row"><div class="habit-info"><div class="hname">${h.name}</div><div class="hmeta">${h.meta}</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="habit-num-input" type="number" id="num-${h.id}" value="${val}" min="0" placeholder="0" oninput="updateNum('${h.id}',this.value)"><span class="habit-unit">${h.unit||''}</span></div></div>`;
-}
-function ctrRow(h,log){
-  const val=log[h.id]||0;
-  return `<div class="habit-row"><div class="habit-info"><div class="hname">${h.name}</div><div class="hmeta">${h.meta}</div></div><div class="counter-wrap"><button class="counter-btn" onclick="adjustCounter('${h.id}',-1)">−</button><span class="counter-val" id="ctr-${h.id}">${val}</span><button class="counter-btn" onclick="adjustCounter('${h.id}',1)">+</button></div></div>`;
-}
+function cbRow(h,log){const checked=!!log[h.id],isBad=!h.good;return `<div class="habit-row"><div class="habit-checkbox ${checked?`checked ${isBad?'bad':'good'}`:''}" id="cb-${h.id}" onclick="toggleHabit('${h.id}','${isBad?'bad':'good'}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div><div class="habit-info"><div class="hname">${h.name}</div><div class="hmeta">${h.meta}</div></div></div>`;}
+function numRow(h,log){const val=log[h.id]!=null?log[h.id]:'';return `<div class="habit-row"><div class="habit-info"><div class="hname">${h.name}</div><div class="hmeta">${h.meta}</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="habit-num-input" type="number" id="num-${h.id}" value="${val}" min="0" placeholder="0" oninput="updateNum('${h.id}',this.value)"><span class="habit-unit">${h.unit||''}</span></div></div>`;}
+function ctrRow(h,log){const val=log[h.id]||0;return `<div class="habit-row"><div class="habit-info"><div class="hname">${h.name}</div><div class="hmeta">${h.meta}</div></div><div class="counter-wrap"><button class="counter-btn" onclick="adjustCounter('${h.id}',-1)">−</button><span class="counter-val" id="ctr-${h.id}">${val}</span><button class="counter-btn" onclick="adjustCounter('${h.id}',1)">+</button></div></div>`;}
 
-function toggleHabit(id,type){
-  if(!cache[logDateStr])cache[logDateStr]={};
-  cache[logDateStr][id]=!cache[logDateStr][id];
-  const cb=document.getElementById('cb-'+id);
-  if(cb)cb.className=`habit-checkbox ${cache[logDateStr][id]?`checked ${type}`:''}`;
-}
+function toggleHabit(id,type){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr][id]=!cache[logDateStr][id];const cb=document.getElementById('cb-'+id);if(cb)cb.className=`habit-checkbox ${cache[logDateStr][id]?`checked ${type}`:''}`;}
 function updateNum(id,val){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr][id]=parseFloat(val)||0;}
-function adjustCounter(id,delta){
-  if(!cache[logDateStr])cache[logDateStr]={};
-  cache[logDateStr][id]=Math.max(0,(cache[logDateStr][id]||0)+delta);
-  const el=document.getElementById('ctr-'+id);if(el)el.textContent=cache[logDateStr][id];
-}
+function adjustCounter(id,delta){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr][id]=Math.max(0,(cache[logDateStr][id]||0)+delta);const el=document.getElementById('ctr-'+id);if(el)el.textContent=cache[logDateStr][id];}
 function renderStars(val){document.getElementById('star-rating').innerHTML=[1,2,3,4,5].map(n=>`<span class="star ${n<=val?'active':''}" onclick="setStar(${n})">⭐</span>`).join('');}
 function setStar(n){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr].sleep_quality=n;renderStars(n);}
 
