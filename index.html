@@ -7,19 +7,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --green-dark: #3B6D11; --green-mid: #639922; --green-light: #EAF3DE;
-  --terra: #D85A30; --terra-light: #FAECE7; --amber: #BA7517; --amber-light: #FAEEDA;
-  --off-white: #F1EFE8; --bg: #F7F4ED; --card: #FFFFFF; --border: #D3D1C7;
-  --text: #2C2C2A; --text-muted: #5F5E5A; --text-light: #888780; --red: #C0392B;
-  --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --green-dark: #2F5A0E; --green-mid: #527E1C; --green-light: #DDE9C9;
+  --terra: #C24A22; --terra-light: #F2DDD2; --amber: #9E6212; --amber-light: #F1E1C4;
+  --off-white: #E8E1D0; --bg: #EBE3D2; --card: #FBF8F1; --border: #C8C2B0;
+  --text: #25241F; --text-muted: #57544A; --text-light: #7D7A6C; --red: #A63226;
+  --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.10);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
 #pin-screen { position: fixed; inset: 0; background: var(--green-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
 #pin-screen.hidden { display: none; }
-.pin-logo { color: #EAF3DE; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.7; }
+.pin-logo { color: #DDE9C9; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.7; }
 .pin-title { color: #fff; font-size: 26px; font-weight: 600; margin-bottom: 4px; }
-.pin-subtitle { color: #9FE1CB; font-size: 14px; margin-bottom: 36px; }
+.pin-subtitle { color: #B8CFA0; font-size: 14px; margin-bottom: 36px; }
 .pin-dots { display: flex; gap: 16px; margin-bottom: 40px; }
 .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); background: transparent; transition: background 0.15s; }
 .pin-dot.filled { background: #fff; border-color: #fff; }
@@ -71,6 +71,7 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
 .streak-icon { font-size: 18px; }
 .streak-days { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
 .streak-name { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.streak-best { font-size: 9px; color: var(--text-light); margin-top: 2px; }
 .habit-dots { display: flex; flex-wrap: wrap; gap: 6px; }
 .habit-dot-item { display: flex; align-items: center; gap: 5px; }
 .hdot { width: 8px; height: 8px; border-radius: 50%; }
@@ -108,6 +109,11 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
 .star-rating { display: flex; gap: 4px; }
 .star { font-size: 20px; cursor: pointer; opacity: 0.3; transition: opacity 0.1s; }
 .star.active { opacity: 1; }
+.energy-slider-wrap { display: flex; align-items: center; gap: 10px; }
+.energy-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: var(--off-white); outline: none; }
+.energy-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--green-mid); cursor: pointer; }
+.energy-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--green-mid); cursor: pointer; border: none; }
+.energy-val { font-size: 18px; font-weight: 700; color: var(--green-dark); min-width: 28px; text-align: center; }
 .counter-wrap { display: flex; align-items: center; gap: 8px; }
 .counter-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--off-white); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
 .counter-val { font-size: 16px; font-weight: 600; min-width: 24px; text-align: center; }
@@ -127,7 +133,12 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
 .hmap-cell.r { background: var(--terra); }
 .hmap-cell.empty { background: transparent; }
 .compare-selects { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.compare-selects select { padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--off-white); font-size: 13px; color: var(--text); width: 100%; }
+.compare-selects select, .metric-select { padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--off-white); font-size: 13px; color: var(--text); width: 100%; }
+.metric-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.metric-card { background: var(--off-white); border-radius: var(--radius-sm); padding: 14px; text-align: center; }
+.metric-card-num { font-size: 28px; font-weight: 800; color: var(--green-dark); line-height: 1; }
+.metric-card-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.metric-card-sub { font-size: 10px; color: var(--text-light); margin-top: 2px; }
 .insight-item { padding: 10px 12px; background: var(--green-light); border-radius: var(--radius-sm); margin-bottom: 8px; border-left: 3px solid var(--green-mid); }
 .insight-item p { font-size: 13px; color: var(--green-dark); line-height: 1.5; }
 .export-btn { width: 100%; padding: 12px; background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
@@ -231,30 +242,52 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
         <div class="ring-wrap"><div class="ring-canvas-wrap"><canvas id="ring-steps"></canvas><div class="ring-center"><span class="ring-val" id="rv-steps">0</span><span class="ring-unit">k</span></div></div><div class="ring-label">Steps</div></div>
       </div>
     </div>
-    <div class="card"><div class="card-title">Streaks</div><div class="streaks-grid" id="streaks-grid"></div></div>
+    <div class="card"><div class="card-title">Streaks (current · best)</div><div class="streaks-grid" id="streaks-grid"></div></div>
     <div class="card"><div class="card-title">Today's habits</div><div class="habit-dots" id="habit-dots"></div></div>
   </div>
 
   <div class="page" id="page-analytics">
     <div class="page-header"><h1>Analytics</h1><p id="analytics-date"></p></div>
     <div class="time-toggle">
-      <button class="time-btn active" onclick="setTimeRange(30,this)">30 days</button>
-      <button class="time-btn" onclick="setTimeRange(60,this)">60 days</button>
-      <button class="time-btn" onclick="setTimeRange(90,this)">90 days</button>
+      <button class="time-btn active" onclick="setTimeRange('month',this)">Month</button>
+      <button class="time-btn" onclick="setTimeRange('quarter',this)">Quarter</button>
+      <button class="time-btn" onclick="setTimeRange('year',this)">Year</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Goal accomplishment</div>
+      <select class="metric-select" id="metric-select" onchange="renderMetricCards()">
+        <option value="exercise">Exercise</option>
+        <option value="yoga">Yoga</option>
+        <option value="pray">Pray / meditate</option>
+        <option value="read">Read</option>
+        <option value="journal">Journal</option>
+        <option value="nophone">No phone on wake</option>
+        <option value="shower">Contrast shower</option>
+        <option value="social">Social connection</option>
+        <option value="sunlight">Sunlight / outside</option>
+        <option value="morning_routine">Morning routine</option>
+        <option value="nightly_routine">Nightly routine</option>
+        <option value="water">Water goal (100oz)</option>
+        <option value="sleep">Sleep goal (8hr)</option>
+        <option value="steps">Steps goal (10k)</option>
+        <option value="alcohol_free">Alcohol-free</option>
+        <option value="pmo_free">PMO-free</option>
+      </select>
+      <div class="metric-cards" id="metric-cards"></div>
     </div>
     <div class="card">
       <div class="card-title">Daily score heatmap</div>
       <div class="heatmap-wrap"><div class="heatmap-grid" id="heatmap-grid"></div></div>
       <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text-light);">
-        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--green-mid);margin-right:4px;vertical-align:middle;"></span>Green ≥75%</span>
-        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--amber);margin-right:4px;vertical-align:middle;"></span>Yellow 50–74%</span>
-        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--terra);margin-right:4px;vertical-align:middle;"></span>Red &lt;50%</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--green-mid);margin-right:4px;vertical-align:middle;"></span>≥75%</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--amber);margin-right:4px;vertical-align:middle;"></span>50–74%</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--terra);margin-right:4px;vertical-align:middle;"></span>&lt;50%</span>
       </div>
     </div>
     <div class="card"><div class="card-title">Daily score over time</div><div class="chart-wrap"><canvas id="chart-score"></canvas></div></div>
     <div class="card"><div class="card-title">Water & sleep trends</div><div class="chart-wrap"><canvas id="chart-watersleep"></canvas></div></div>
+    <div class="card"><div class="card-title">Mood & energy trends</div><div class="chart-wrap"><canvas id="chart-moodenergy"></canvas></div></div>
     <div class="card"><div class="card-title">Habit completion (weekly)</div><div class="chart-wrap"><canvas id="chart-weekly"></canvas></div></div>
-    <div class="card"><div class="card-title">Nicotine & caffeine</div><div class="chart-wrap"><canvas id="chart-substances"></canvas></div></div>
     <div class="card">
       <div class="card-title">Compare two metrics</div>
       <div class="compare-selects">
@@ -263,7 +296,8 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
           <option value="water">Water (oz)</option>
           <option value="steps">Steps</option>
           <option value="caffeine">Caffeine (mg)</option>
-          <option value="nicotine">Nicotine pouches</option>
+          <option value="mood">Mood (0-5)</option>
+          <option value="energy">Energy (1-10)</option>
           <option value="score">Daily score %</option>
         </select>
         <select id="compare-b" onchange="updateCompare()">
@@ -272,7 +306,8 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
           <option value="water">Water (oz)</option>
           <option value="steps">Steps</option>
           <option value="caffeine">Caffeine (mg)</option>
-          <option value="nicotine">Nicotine pouches</option>
+          <option value="mood">Mood (0-5)</option>
+          <option value="energy">Energy (1-10)</option>
         </select>
       </div>
       <div class="chart-wrap"><canvas id="chart-compare"></canvas></div>
@@ -294,9 +329,11 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
     <div class="card" style="padding:12px 16px;">
       <div class="habit-section-label"><span class="section-dot green"></span>Build — daily</div>
       <div id="log-daily-habits"></div>
+      <div class="habit-section-label"><span class="section-dot green"></span>Build — routines</div>
+      <div id="log-routine-habits"></div>
       <div class="habit-section-label"><span class="section-dot green"></span>Build — quantities</div>
       <div id="log-quantity-habits"></div>
-      <div class="habit-section-label"><span class="section-dot green"></span>Build — weekly</div>
+      <div class="habit-section-label"><span class="section-dot green"></span>Build — movement</div>
       <div id="log-weekly-habits"></div>
       <div class="habit-section-label"><span class="section-dot terra"></span>Avoid</div>
       <div id="log-avoid-habits"></div>
@@ -304,10 +341,21 @@ nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width:
       <div id="log-track-habits"></div>
     </div>
     <div class="card">
-      <div class="card-title">Sleep quality</div>
-      <div class="habit-row" style="border:none;padding:0;">
-        <div class="habit-info"><div class="hname">How well did you sleep?</div><div class="hmeta">1 = terrible · 5 = perfect</div></div>
+      <div class="card-title">How did today feel?</div>
+      <div class="habit-row" style="border-bottom:1px solid var(--off-white);padding-top:0;">
+        <div class="habit-info"><div class="hname">Mood</div><div class="hmeta">0 = awful · 5 = amazing</div></div>
+        <div class="star-rating" id="mood-rating"></div>
+      </div>
+      <div class="habit-row" style="border-bottom:1px solid var(--off-white);">
+        <div class="habit-info"><div class="hname">Sleep quality</div><div class="hmeta">1 = terrible · 5 = perfect</div></div>
         <div class="star-rating" id="star-rating"></div>
+      </div>
+      <div class="habit-row" style="border:none;padding-bottom:0;">
+        <div class="habit-info"><div class="hname">Energy</div><div class="hmeta">1 = drained · 10 = peak</div></div>
+      </div>
+      <div class="energy-slider-wrap">
+        <input type="range" min="0" max="10" value="0" class="energy-slider" id="energy-slider" oninput="setEnergy(this.value)">
+        <span class="energy-val" id="energy-val">0</span>
       </div>
     </div>
     <div class="card"><div class="card-title">Day notes</div><textarea class="daily-note" id="daily-note" placeholder="What happened today? How are you feeling?"></textarea></div>
@@ -325,7 +373,7 @@ async function sbFetch(method,path,body){
   if(!res.ok){const err=await res.text();throw new Error(err);}
   const text=await res.text();return text?JSON.parse(text):null;
 }
-async function loadAllLogs(){showSyncBar('syncing','Syncing...');const rows=await sbFetch('GET','habit_logs?select=*&order=date.desc&limit=120');const map={};(rows||[]).forEach(r=>{map[r.date]=r;});hideSyncBarSoon();return map;}
+async function loadAllLogs(){showSyncBar('syncing','Syncing...');const rows=await sbFetch('GET','habit_logs?select=*&order=date.desc&limit=400');const map={};(rows||[]).forEach(r=>{map[r.date]=r;});hideSyncBarSoon();return map;}
 async function upsertLog(log){showSyncBar('syncing','Saving...');await sbFetch('POST','habit_logs',log);showSyncBar('saved','Saved ✓');hideSyncBarSoon();}
 
 let syncTimer;
@@ -336,6 +384,7 @@ let cache={};
 function todayKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function dateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function getLog(key){return cache[key]||{};}
+function isWeekend(dateStr){const d=new Date(dateStr+'T12:00:00');const day=d.getDay();return day===0||day===6;}
 
 const HABITS={
   daily:[
@@ -347,13 +396,17 @@ const HABITS={
     {id:'social',name:'Social connection',meta:'Call or meaningful interaction',good:true},
     {id:'sunlight',name:'Sunlight / outside',meta:'30 min minimum',good:true},
   ],
+  routine:[
+    {id:'morning_routine',name:'Full morning routine',meta:'Completed the whole thing',good:true},
+    {id:'nightly_routine',name:'Full nightly routine',meta:'Completed the whole thing',good:true},
+  ],
   quantity:[
-    {id:'water',name:'Water intake',meta:'Goal: 64 oz',unit:'oz',goal:64,good:true},
+    {id:'water',name:'Water intake',meta:'Goal: 100 oz',unit:'oz',goal:100,good:true},
     {id:'sleep',name:'Sleep',meta:'Goal: 8 hours',unit:'hrs',goal:8,good:true},
     {id:'steps',name:'Steps',meta:'Goal: 10,000',unit:'steps',goal:10000,good:true},
   ],
   weekly:[
-    {id:'gym',name:'Gym',meta:'Goal: 5× per week',good:true},
+    {id:'gym',name:'Exercise',meta:'Goal: 5×/week (weekdays)',good:true},
     {id:'yoga',name:'Yoga',meta:'Goal: daily',good:true},
   ],
   avoid:[
@@ -367,14 +420,17 @@ const HABITS={
   ]
 };
 
-function scoreDay(log){
+function scoreDay(log,dateStr){
   if(!log||Object.keys(log).filter(k=>!['date','id','created_at','updated_at'].includes(k)).length===0)return null;
   let pts=0,total=0,penalty=false;
   HABITS.daily.forEach(h=>{total++;if(log[h.id])pts++;});
-  total++;if((log.water||0)>=64)pts++;
+  HABITS.routine.forEach(h=>{total++;if(log[h.id])pts++;});
+  total++;if((log.water||0)>=100)pts++;
   total++;if((log.sleep||0)>=8)pts++;
   total++;if((log.steps||0)>=10000)pts++;
-  total++;if(log.gym)pts++;
+  // Exercise: weekdays only
+  if(dateStr && !isWeekend(dateStr)){total++;if(log.gym)pts++;}
+  else if(!dateStr){total++;if(log.gym)pts++;}
   total++;if(log.yoga)pts++;
   if(log.youtube!=null){total++;if((log.youtube||0)<=60)pts++;}
   if(log.caffeine!=null){total++;if((log.caffeine||0)<=200)pts++;}
@@ -413,7 +469,7 @@ function renderDashboard(){
   const today=todayKey(),log=getLog(today);
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   document.getElementById('analytics-date').textContent=new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
-  const score=scoreDay(log),card=document.getElementById('day-score-card');
+  const score=scoreDay(log,today),card=document.getElementById('day-score-card');
   card.className='day-score-card';
   if(score){
     if(score.color==='yellow')card.classList.add('yellow');
@@ -422,45 +478,79 @@ function renderDashboard(){
     document.getElementById('score-pct').textContent=score.pct+'%';
     document.getElementById('score-status').textContent=score.pct>=75?'🟢 Great day — keep it going':score.pct>=50?'🟡 Decent day — room to improve':'🔴 Tough day — tomorrow is a new start';
   }else{document.getElementById('score-grade').textContent='—';document.getElementById('score-pct').textContent='—';document.getElementById('score-status').textContent="Log today's habits to get your score";}
-  renderRing('ring-water',log.water||0,64,'#639922','rv-water',log.water||0);
-  renderRing('ring-sleep',log.sleep||0,8,'#3B6D11','rv-sleep',log.sleep||0);
-  renderRing('ring-caff',log.caffeine||0,200,(log.caffeine||0)<=200?'#639922':'#D85A30','rv-caff',log.caffeine||0);
-  renderRing('ring-steps',log.steps||0,10000,'#BA7517','rv-steps',Math.round((log.steps||0)/1000*10)/10);
+  renderRing('ring-water',log.water||0,100,'#527E1C','rv-water',log.water||0);
+  renderRing('ring-sleep',log.sleep||0,8,'#2F5A0E','rv-sleep',log.sleep||0);
+  renderRing('ring-caff',log.caffeine||0,200,(log.caffeine||0)<=200?'#527E1C':'#C24A22','rv-caff',log.caffeine||0);
+  renderRing('ring-steps',log.steps||0,10000,'#9E6212','rv-steps',Math.round((log.steps||0)/1000*10)/10);
   renderStreaks();renderHabitDots(log);renderMissedBanner();
 }
 
 function renderRing(canvasId,val,max,color,labelId,display){
   const canvas=document.getElementById(canvasId),pct=Math.min(val/max,1);
   if(ringCharts[canvasId])ringCharts[canvasId].destroy();
-  ringCharts[canvasId]=new Chart(canvas,{type:'doughnut',data:{datasets:[{data:[pct,1-pct],backgroundColor:[color,'#F1EFE8'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:400}}});
+  ringCharts[canvasId]=new Chart(canvas,{type:'doughnut',data:{datasets:[{data:[pct,1-pct],backgroundColor:[color,'#E8E1D0'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:400}}});
   document.getElementById(labelId).textContent=display;
 }
 
-function renderStreaks(){
+function hasLogged(log){if(!log)return false;return Object.keys(log).filter(x=>!['id','date','created_at','updated_at'].includes(x)).length>0;}
+
+// Current streak ending today
+function currentStreak(id,avoid){
   const today=todayKey();
-  function hasLogged(log){if(!log)return false;return Object.keys(log).filter(x=>!['id','date','created_at','updated_at'].includes(x)).length>0;}
-  function streak(id,avoid){
-    let s=0,d=new Date();
-    const todayLog=cache[today];
-    if(!hasLogged(todayLog))return 0;
-    if(avoid){if(!todayLog[id])s++;else return 0;}
-    else{if(todayLog[id])s++;else return 0;}
+  let s=0,d=new Date();
+  const todayLog=cache[today];
+  if(!hasLogged(todayLog))return 0;
+  if(avoid){if(!todayLog[id])s++;else return 0;}
+  else{if(todayLog[id])s++;else return 0;}
+  d.setDate(d.getDate()-1);
+  for(let i=0;i<730;i++){
+    const k=dateKey(d),log=cache[k];
+    if(!log||!hasLogged(log))break;
+    const val=log[id];
+    if(avoid){if(val)break;else s++;}else{if(val)s++;else break;}
     d.setDate(d.getDate()-1);
-    for(let i=0;i<365;i++){
-      const k=dateKey(d),log=cache[k];
-      if(!log||!hasLogged(log))break;
-      const val=log[id];
-      if(avoid){if(val)break;else s++;}else{if(val)s++;else break;}
-      d.setDate(d.getDate()-1);
-    }
-    return s;
   }
-  const defs=[{id:'alcohol',label:'Alcohol-free',avoid:true,icon:'🍺',cls:'terra'},{id:'pmo',label:'PMO-free',avoid:true,icon:'🚫',cls:'terra'},{id:'yoga',label:'Yoga streak',avoid:false,icon:'🧘',cls:'green'},{id:'gym',label:'Gym streak',avoid:false,icon:'🏋️',cls:'green'},{id:'read',label:'Reading streak',avoid:false,icon:'📖',cls:'green'},{id:'journal',label:'Journal streak',avoid:false,icon:'✍️',cls:'green'}];
-  document.getElementById('streaks-grid').innerHTML=defs.map(s=>`<div class="streak-badge ${s.cls}"><span class="streak-icon">${s.icon}</span><div><div class="streak-days">${streak(s.id,s.avoid)}</div><div class="streak-name">${s.label}</div></div></div>`).join('');
+  return s;
+}
+
+// Best (longest) streak ever, returns {len, start, end}
+function bestStreak(id,avoid){
+  const keys=Object.keys(cache).filter(k=>hasLogged(cache[k])).sort();
+  let best=0,bestStart=null,bestEnd=null,cur=0,curStart=null,prevK=null;
+  for(const k of keys){
+    const log=cache[k],val=log[id];
+    const success=avoid?!val:!!val;
+    // check for date gap — only consecutive calendar days count
+    let consecutive=false;
+    if(prevK){
+      const pd=new Date(prevK+'T12:00:00'),cd=new Date(k+'T12:00:00');
+      consecutive=Math.round((cd-pd)/86400000)===1;
+    }
+    if(success){
+      if(cur>0&&consecutive){cur++;}else{cur=1;curStart=k;}
+      if(cur>best){best=cur;bestStart=curStart;bestEnd=k;}
+    }else{cur=0;curStart=null;}
+    prevK=k;
+  }
+  return{len:best,start:bestStart,end:bestEnd};
+}
+
+function fmtShort(dateStr){if(!dateStr)return'';const d=new Date(dateStr+'T12:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+function renderStreaks(){
+  const defs=[{id:'alcohol',label:'Alcohol-free',avoid:true,icon:'🍺',cls:'terra'},{id:'pmo',label:'PMO-free',avoid:true,icon:'🚫',cls:'terra'},{id:'yoga',label:'Yoga',avoid:false,icon:'🧘',cls:'green'},{id:'gym',label:'Exercise',avoid:false,icon:'🏋️',cls:'green'},{id:'read',label:'Reading',avoid:false,icon:'📖',cls:'green'},{id:'journal',label:'Journal',avoid:false,icon:'✍️',cls:'green'}];
+  document.getElementById('streaks-grid').innerHTML=defs.map(s=>{
+    const cur=currentStreak(s.id,s.avoid);
+    const best=bestStreak(s.id,s.avoid);
+    let bestText='No streak yet';
+    if(best.len>0){bestText=`Best: ${best.len}d`;if(best.start&&best.end&&best.len>1)bestText+=` (${fmtShort(best.start)}–${fmtShort(best.end)})`;else if(best.start)bestText+=` (${fmtShort(best.start)})`;}
+    return `<div class="streak-badge ${s.cls}"><span class="streak-icon">${s.icon}</span><div><div class="streak-days">${cur}</div><div class="streak-name">${s.label}</div><div class="streak-best">${bestText}</div></div></div>`;
+  }).join('');
 }
 
 function renderHabitDots(log){
-  const items=[...HABITS.daily.map(h=>({name:h.name,done:!!log[h.id]})),{name:'Gym',done:!!log.gym},{name:'Yoga',done:!!log.yoga},{name:'Water',done:(log.water||0)>=64},{name:'Sleep',done:(log.sleep||0)>=8},{name:'Steps',done:(log.steps||0)>=10000},{name:'No alcohol',done:!log.alcohol},{name:'PMO-free',done:!log.pmo},{name:'YouTube<1hr',done:(log.youtube||0)<=60&&log.youtube!=null},{name:'Caffeine OK',done:(log.caffeine||0)<=200&&log.caffeine!=null}];
+  const today=todayKey();
+  const items=[...HABITS.daily.map(h=>({name:h.name,done:!!log[h.id]})),...HABITS.routine.map(h=>({name:h.name,done:!!log[h.id]})),{name:'Exercise',done:!!log.gym},{name:'Yoga',done:!!log.yoga},{name:'Water',done:(log.water||0)>=100},{name:'Sleep',done:(log.sleep||0)>=8},{name:'Steps',done:(log.steps||0)>=10000},{name:'No alcohol',done:!log.alcohol},{name:'PMO-free',done:!log.pmo},{name:'YouTube<1hr',done:(log.youtube||0)<=60&&log.youtube!=null},{name:'Caffeine OK',done:(log.caffeine||0)<=200&&log.caffeine!=null}];
   document.getElementById('habit-dots').innerHTML=items.map(i=>`<div class="habit-dot-item"><div class="hdot ${i.done?'done':'skip'}"></div><span class="hdot-label">${i.name}</span></div>`).join('');
 }
 
@@ -503,11 +593,14 @@ function renderLogPage(){
   document.getElementById('log-date-main').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   document.getElementById('log-date-sub').textContent=logDateStr===todayKey()?'Today':'Past entry — editing will sync';
   document.getElementById('log-daily-habits').innerHTML=HABITS.daily.map(h=>cbRow(h,log)).join('');
+  document.getElementById('log-routine-habits').innerHTML=HABITS.routine.map(h=>cbRow(h,log)).join('');
   document.getElementById('log-quantity-habits').innerHTML=HABITS.quantity.map(h=>numRow(h,log)).join('');
   document.getElementById('log-weekly-habits').innerHTML=HABITS.weekly.map(h=>cbRow(h,log)).join('');
   document.getElementById('log-avoid-habits').innerHTML=HABITS.avoid.map(h=>h.avoidOver?numRow(h,log):cbRow(h,log)).join('');
   document.getElementById('log-track-habits').innerHTML=HABITS.track.map(h=>h.counter?ctrRow(h,log):numRow(h,log)).join('');
   renderStars(log.sleep_quality||0);
+  renderMood(log.mood||0);
+  setEnergyDisplay(log.energy||0);
   document.getElementById('daily-note').value=log.note||'';
 }
 
@@ -520,6 +613,10 @@ function updateNum(id,val){if(!cache[logDateStr])cache[logDateStr]={};cache[logD
 function adjustCounter(id,delta){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr][id]=Math.max(0,(cache[logDateStr][id]||0)+delta);const el=document.getElementById('ctr-'+id);if(el)el.textContent=cache[logDateStr][id];}
 function renderStars(val){document.getElementById('star-rating').innerHTML=[1,2,3,4,5].map(n=>`<span class="star ${n<=val?'active':''}" onclick="setStar(${n})">⭐</span>`).join('');}
 function setStar(n){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr].sleep_quality=n;renderStars(n);}
+function renderMood(val){document.getElementById('mood-rating').innerHTML=[1,2,3,4,5].map(n=>`<span class="star ${n<=val?'active':''}" onclick="setMood(${n})">⭐</span>`).join('');}
+function setMood(n){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr].mood=n;renderMood(n);}
+function setEnergy(v){if(!cache[logDateStr])cache[logDateStr]={};cache[logDateStr].energy=parseInt(v);document.getElementById('energy-val').textContent=v;}
+function setEnergyDisplay(v){document.getElementById('energy-slider').value=v;document.getElementById('energy-val').textContent=v;}
 
 async function saveLog(){
   if(!cache[logDateStr])cache[logDateStr]={};
@@ -529,20 +626,52 @@ async function saveLog(){
   catch(e){showSyncBar('error','Sync failed — check connection');}
 }
 
-let analyticsRange=30,aCharts={};
-function setTimeRange(n,btn){analyticsRange=n;document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAnalytics();}
+let analyticsRange='month',aCharts={};
+const RANGE_DAYS={month:30,quarter:90,year:365};
+function setTimeRange(r,btn){analyticsRange=r;document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAnalytics();}
 function getDateRange(days){const keys=[],labels=[],d=new Date();for(let i=days-1;i>=0;i--){const dd=new Date(d);dd.setDate(dd.getDate()-i);keys.push(dateKey(dd));labels.push(dd.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}return{keys,labels};}
 function dc(id){if(aCharts[id]){aCharts[id].destroy();delete aCharts[id];}}
 
+function metricHit(log,metric){
+  if(!log)return false;
+  switch(metric){
+    case'water':return(log.water||0)>=100;
+    case'sleep':return(log.sleep||0)>=8;
+    case'steps':return(log.steps||0)>=10000;
+    case'alcohol_free':return hasLogged(log)&&!log.alcohol;
+    case'pmo_free':return hasLogged(log)&&!log.pmo;
+    default:return!!log[metric];
+  }
+}
+
+function countInPeriod(metric,days){
+  let count=0;const d=new Date();
+  for(let i=0;i<days;i++){const dd=new Date(d);dd.setDate(dd.getDate()-i);const log=cache[dateKey(dd)];if(metricHit(log,metric))count++;}
+  return count;
+}
+
+function renderMetricCards(){
+  const metric=document.getElementById('metric-select').value;
+  const periods=[{label:'This week',days:7},{label:'This month',days:30},{label:'This quarter',days:90},{label:'This year',days:365}];
+  document.getElementById('metric-cards').innerHTML=periods.map(p=>{
+    const c=countInPeriod(metric,p.days);
+    return `<div class="metric-card"><div class="metric-card-num">${c}</div><div class="metric-card-label">${p.label}</div><div class="metric-card-sub">days accomplished</div></div>`;
+  }).join('');
+}
+
 function renderAnalytics(){
-  const{keys,labels}=getDateRange(analyticsRange);
+  const days=RANGE_DAYS[analyticsRange];
+  const{keys,labels}=getDateRange(days);
+  renderMetricCards();
   renderHeatmap();
   dc('chart-score');
-  aCharts['chart-score']=new Chart(document.getElementById('chart-score'),{type:'line',data:{labels,datasets:[{label:'Score %',data:keys.map(k=>{const s=scoreDay(cache[k]);return s?s.pct:null;}),borderColor:'#639922',backgroundColor:'rgba(99,153,34,0.08)',borderWidth:2,pointRadius:2,tension:0.3,fill:true,spanGaps:true}]},options:lineOpts('Score (%)',0,100)});
+  aCharts['chart-score']=new Chart(document.getElementById('chart-score'),{type:'line',data:{labels,datasets:[{label:'Score %',data:keys.map(k=>{const s=scoreDay(cache[k],k);return s?s.pct:null;}),borderColor:'#527E1C',backgroundColor:'rgba(82,126,28,0.10)',borderWidth:2,pointRadius:days>90?0:2,tension:0.3,fill:true,spanGaps:true}]},options:lineOpts('Score (%)',0,100)});
   dc('chart-watersleep');
-  aCharts['chart-watersleep']=new Chart(document.getElementById('chart-watersleep'),{type:'line',data:{labels,datasets:[{label:'Water (oz)',data:keys.map(k=>(cache[k]||{}).water||null),borderColor:'#3B6D11',borderWidth:2,pointRadius:2,tension:0.3,spanGaps:true,yAxisID:'y'},{label:'Sleep (hrs)',data:keys.map(k=>(cache[k]||{}).sleep||null),borderColor:'#BA7517',borderWidth:2,pointRadius:2,tension:0.3,spanGaps:true,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:10},color:'#888780'},grid:{color:'rgba(0,0,0,0.05)'}},y1:{position:'right',ticks:{font:{size:10},color:'#BA7517'},grid:{display:false}}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}},tooltip:{mode:'index'}}}});
+  aCharts['chart-watersleep']=new Chart(document.getElementById('chart-watersleep'),{type:'line',data:{labels,datasets:[{label:'Water (oz)',data:keys.map(k=>(cache[k]||{}).water||null),borderColor:'#2F5A0E',borderWidth:2,pointRadius:days>90?0:2,tension:0.3,spanGaps:true,yAxisID:'y'},{label:'Sleep (hrs)',data:keys.map(k=>(cache[k]||{}).sleep||null),borderColor:'#9E6212',borderWidth:2,pointRadius:days>90?0:2,tension:0.3,spanGaps:true,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#7D7A6C'},grid:{display:false}},y:{ticks:{font:{size:10},color:'#7D7A6C'},grid:{color:'rgba(0,0,0,0.05)'}},y1:{position:'right',ticks:{font:{size:10},color:'#9E6212'},grid:{display:false}}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}},tooltip:{mode:'index'}}}});
+  dc('chart-moodenergy');
+  aCharts['chart-moodenergy']=new Chart(document.getElementById('chart-moodenergy'),{type:'line',data:{labels,datasets:[{label:'Mood (0-5)',data:keys.map(k=>(cache[k]||{}).mood||null),borderColor:'#C24A22',borderWidth:2,pointRadius:days>90?0:2,tension:0.3,spanGaps:true,yAxisID:'y'},{label:'Energy (1-10)',data:keys.map(k=>(cache[k]||{}).energy||null),borderColor:'#527E1C',borderWidth:2,pointRadius:days>90?0:2,tension:0.3,spanGaps:true,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#7D7A6C'},grid:{display:false}},y:{min:0,max:5,ticks:{font:{size:10},color:'#C24A22'},grid:{color:'rgba(0,0,0,0.05)'}},y1:{position:'right',min:0,max:10,ticks:{font:{size:10},color:'#527E1C'},grid:{display:false}}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}},tooltip:{mode:'index'}}}});
   dc('chart-weekly');
-  const weeks=Math.ceil(analyticsRange/7),wl=[],gd=[],yd=[],dp=[];
+  const weeks=Math.min(Math.ceil(days/7),16),wl=[],gd=[],yd=[],dp=[];
   for(let w=weeks-1;w>=0;w--){
     const start=new Date();start.setDate(start.getDate()-(w*7+6));
     const end=new Date();end.setDate(end.getDate()-(w*7));
@@ -551,54 +680,54 @@ function renderAnalytics(){
     for(let dd=new Date(start);dd<=end;dd.setDate(dd.getDate()+1)){const log=cache[dateKey(dd)]||{};if(log.gym)gc++;if(log.yoga)yc++;HABITS.daily.forEach(h=>{if(log[h.id])dc2++;dt++;});}
     gd.push(gc);yd.push(yc);dp.push(dt>0?Math.round(dc2/dt*100):null);
   }
-  aCharts['chart-weekly']=new Chart(document.getElementById('chart-weekly'),{type:'bar',data:{labels:wl,datasets:[{label:'Gym days',data:gd,backgroundColor:'#639922',borderRadius:4,yAxisID:'y'},{label:'Yoga days',data:yd,backgroundColor:'#EAF3DE',borderColor:'#639922',borderWidth:1,borderRadius:4,yAxisID:'y'},{label:'Daily habits %',data:dp,type:'line',borderColor:'#BA7517',borderWidth:2,pointRadius:3,yAxisID:'y1',tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:10}},max:7},y1:{position:'right',ticks:{font:{size:10},color:'#BA7517'},grid:{display:false},max:100}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}}}}});
-  dc('chart-substances');
-  aCharts['chart-substances']=new Chart(document.getElementById('chart-substances'),{type:'bar',data:{labels,datasets:[{label:'Caffeine (mg)',data:keys.map(k=>(cache[k]||{}).caffeine||0),backgroundColor:'rgba(186,117,23,0.7)',borderRadius:2,yAxisID:'y'},{label:'Nicotine pouches',data:keys.map(k=>(cache[k]||{}).nicotine||0),backgroundColor:'rgba(216,90,48,0.7)',borderRadius:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:10}}},y1:{position:'right',ticks:{font:{size:10},color:'#D85A30'},grid:{display:false}}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}}}}});
+  aCharts['chart-weekly']=new Chart(document.getElementById('chart-weekly'),{type:'bar',data:{labels:wl,datasets:[{label:'Exercise days',data:gd,backgroundColor:'#527E1C',borderRadius:4,yAxisID:'y'},{label:'Yoga days',data:yd,backgroundColor:'#DDE9C9',borderColor:'#527E1C',borderWidth:1,borderRadius:4,yAxisID:'y'},{label:'Daily habits %',data:dp,type:'line',borderColor:'#9E6212',borderWidth:2,pointRadius:3,yAxisID:'y1',tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},color:'#7D7A6C'},grid:{display:false}},y:{ticks:{font:{size:10}},max:7},y1:{position:'right',ticks:{font:{size:10},color:'#9E6212'},grid:{display:false},max:100}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}}}}});
   updateCompare();renderInsights(keys);
 }
 
-function lineOpts(label,min,max){return{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:10},color:'#888780'},grid:{color:'rgba(0,0,0,0.05)'},min,max}},plugins:{legend:{display:false},tooltip:{mode:'index'}}};}
+function lineOpts(label,min,max){return{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#7D7A6C'},grid:{display:false}},y:{ticks:{font:{size:10},color:'#7D7A6C'},grid:{color:'rgba(0,0,0,0.05)'},min,max}},plugins:{legend:{display:false},tooltip:{mode:'index'}}};}
 
 function updateCompare(){
-  const{keys,labels}=getDateRange(analyticsRange);
+  const days=RANGE_DAYS[analyticsRange];
+  const{keys,labels}=getDateRange(days);
   const aKey=document.getElementById('compare-a').value,bKey=document.getElementById('compare-b').value;
-  function gm(log,key){const s=scoreDay(log);if(key==='score')return s?s.pct:null;return(log||{})[key]||null;}
-  const colors={score:'#639922',sleep:'#3B6D11',water:'#1D9E75',steps:'#BA7517',caffeine:'#D85A30',nicotine:'#888780'};
-  const ml={score:'Daily score %',sleep:'Sleep (hrs)',water:'Water (oz)',steps:'Steps',caffeine:'Caffeine (mg)',nicotine:'Nicotine pouches'};
+  function gm(log,key,k){const s=scoreDay(log,k);if(key==='score')return s?s.pct:null;return(log||{})[key]||null;}
+  const colors={score:'#527E1C',sleep:'#2F5A0E',water:'#1A7A56',steps:'#9E6212',caffeine:'#C24A22',mood:'#C24A22',energy:'#527E1C'};
+  const ml={score:'Daily score %',sleep:'Sleep (hrs)',water:'Water (oz)',steps:'Steps',caffeine:'Caffeine (mg)',mood:'Mood (0-5)',energy:'Energy (1-10)'};
   dc('chart-compare');
-  aCharts['chart-compare']=new Chart(document.getElementById('chart-compare'),{type:'line',data:{labels,datasets:[{label:ml[aKey],data:keys.map(k=>gm(cache[k],aKey)),borderColor:colors[aKey],borderWidth:2,pointRadius:2,tension:0.3,spanGaps:true,yAxisID:'y'},{label:ml[bKey],data:keys.map(k=>gm(cache[k],bKey)),borderColor:colors[bKey],borderWidth:2,pointRadius:2,tension:0.3,spanGaps:true,yAxisID:'y1',borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:10},color:colors[aKey]},grid:{color:'rgba(0,0,0,0.05)'}},y1:{position:'right',ticks:{font:{size:10},color:colors[bKey]},grid:{display:false}}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}},tooltip:{mode:'index'}}}});
+  aCharts['chart-compare']=new Chart(document.getElementById('chart-compare'),{type:'line',data:{labels,datasets:[{label:ml[aKey],data:keys.map(k=>gm(cache[k],aKey,k)),borderColor:colors[aKey],borderWidth:2,pointRadius:days>90?0:2,tension:0.3,spanGaps:true,yAxisID:'y'},{label:ml[bKey],data:keys.map(k=>gm(cache[k],bKey,k)),borderColor:colors[bKey],borderWidth:2,pointRadius:days>90?0:2,tension:0.3,spanGaps:true,yAxisID:'y1',borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10},maxTicksLimit:8,color:'#7D7A6C'},grid:{display:false}},y:{ticks:{font:{size:10},color:colors[aKey]},grid:{color:'rgba(0,0,0,0.05)'}},y1:{position:'right',ticks:{font:{size:10},color:colors[bKey]},grid:{display:false}}},plugins:{legend:{labels:{font:{size:11},boxWidth:12}},tooltip:{mode:'index'}}}});
 }
 
 function renderInsights(keys){
   const area=document.getElementById('insights-area'),insights=[],avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null;
-  const gymDays=keys.filter(k=>cache[k]&&cache[k].gym),noGymDays=keys.filter(k=>cache[k]&&!cache[k].gym);
-  if(gymDays.length>2&&noGymDays.length>2){const sg=avg(gymDays.map(k=>cache[k].sleep_quality||0).filter(v=>v>0)),sn=avg(noGymDays.map(k=>cache[k].sleep_quality||0).filter(v=>v>0));if(sg&&sn)insights.push(`On gym days your sleep quality averages ${sg.toFixed(1)}★ vs ${sn.toFixed(1)}★ on rest days.`);}
+  const gymDays=keys.filter(k=>cache[k]&&cache[k].gym),noGymDays=keys.filter(k=>cache[k]&&hasLogged(cache[k])&&!cache[k].gym);
+  if(gymDays.length>2&&noGymDays.length>2){const sg=avg(gymDays.map(k=>cache[k].energy||0).filter(v=>v>0)),sn=avg(noGymDays.map(k=>cache[k].energy||0).filter(v=>v>0));if(sg&&sn)insights.push(`On exercise days your energy averages ${sg.toFixed(1)}/10 vs ${sn.toFixed(1)}/10 on rest days.`);}
+  const moodDays=keys.filter(k=>cache[k]&&cache[k].mood>0);
+  if(moodDays.length>3){const am=avg(moodDays.map(k=>cache[k].mood));insights.push(`Your average mood this period is ${am.toFixed(1)}/5 across ${moodDays.length} logged days.`);}
   const alcUsed=keys.filter(k=>cache[k]&&cache[k].alcohol);
   if(alcUsed.length>0)insights.push(`You had ${alcUsed.length} day${alcUsed.length>1?'s':''} with alcohol in this period.`);
   else if(keys.filter(k=>cache[k]).length>0)insights.push(`🎉 Zero alcohol days logged in this period. Streak intact.`);
-  const waterHit=keys.filter(k=>(cache[k]||{}).water>=64),logged=keys.filter(k=>cache[k]).length;
-  if(logged>2)insights.push(`You hit your water goal on ${Math.round(waterHit.length/logged*100)}% of logged days.`);
-  const highCaff=keys.filter(k=>(cache[k]||{}).caffeine>200);
-  if(highCaff.length>1){const hs=avg(highCaff.map(k=>(cache[k]||{}).sleep||0).filter(v=>v>0)),ls=avg(keys.filter(k=>cache[k]&&(cache[k].caffeine||0)<=200).map(k=>(cache[k]||{}).sleep||0).filter(v=>v>0));if(hs&&ls)insights.push(`On high-caffeine days (>200mg) avg sleep is ${hs.toFixed(1)} hrs vs ${ls.toFixed(1)} hrs on lower days.`);}
+  const waterHit=keys.filter(k=>(cache[k]||{}).water>=100),logged=keys.filter(k=>cache[k]&&hasLogged(cache[k])).length;
+  if(logged>2)insights.push(`You hit your 100oz water goal on ${Math.round(waterHit.length/logged*100)}% of logged days.`);
   if(insights.length===0)insights.push('Log a few weeks of data to start seeing personalized insights.');
   area.innerHTML=insights.map(i=>`<div class="insight-item"><p>${i}</p></div>`).join('');
 }
 
 function renderHeatmap(){
+  const days=RANGE_DAYS[analyticsRange];
   const grid=document.getElementById('heatmap-grid'),end=new Date(),start=new Date();
-  start.setDate(start.getDate()-90);
+  start.setDate(start.getDate()-days);
   const startDay=start.getDay(),cells=[];
   for(let i=0;i<startDay;i++)cells.push('<div class="hmap-cell empty"></div>');
   let d=new Date(start);
-  while(d<=end){const k=dateKey(d),s=scoreDay(cache[k]);let cls='hmap-cell';if(s){if(s.color==='green')cls+=' g';else if(s.color==='yellow')cls+=' y';else cls+=' r';}cells.push(`<div class="${cls}" title="${k}"></div>`);d.setDate(d.getDate()+1);}
+  while(d<=end){const k=dateKey(d),s=scoreDay(cache[k],k);let cls='hmap-cell';if(s){if(s.color==='green')cls+=' g';else if(s.color==='yellow')cls+=' y';else cls+=' r';}cells.push(`<div class="${cls}" title="${k}"></div>`);d.setDate(d.getDate()+1);}
   grid.innerHTML=cells.join('');
 }
 
 function exportCSV(){
   const keys=Object.keys(cache).sort();
   if(keys.length===0){alert('No data to export yet.');return;}
-  const headers=['Date','Score%','Grade','Water(oz)','Sleep(hrs)','SleepQuality','Steps','Gym','Yoga','Pray','Read','Journal','NoPhone','ColdShower','Social','Sunlight','YouTube(min)','Alcohol','PMO','Caffeine(mg)','Nicotine','Note'];
-  const rows=keys.map(k=>{const l=cache[k]||{},s=scoreDay(l);return[k,s?s.pct:'',s?s.grade:'',l.water||'',l.sleep||'',l.sleep_quality||'',l.steps||'',l.gym?1:0,l.yoga?1:0,l.pray?1:0,l.read?1:0,l.journal?1:0,l.nophone?1:0,l.shower?1:0,l.social?1:0,l.sunlight?1:0,l.youtube||'',l.alcohol?1:0,l.pmo?1:0,l.caffeine||'',l.nicotine||'',`"${(l.note||'').replace(/"/g,'""')}"`].join(',');});
+  const headers=['Date','Score%','Grade','Water(oz)','Sleep(hrs)','SleepQuality','Mood','Energy','Steps','Exercise','Yoga','Pray','Read','Journal','NoPhone','ColdShower','Social','Sunlight','MorningRoutine','NightlyRoutine','YouTube(min)','Alcohol','PMO','Caffeine(mg)','Nicotine','Note'];
+  const rows=keys.map(k=>{const l=cache[k]||{},s=scoreDay(l,k);return[k,s?s.pct:'',s?s.grade:'',l.water||'',l.sleep||'',l.sleep_quality||'',l.mood||'',l.energy||'',l.steps||'',l.gym?1:0,l.yoga?1:0,l.pray?1:0,l.read?1:0,l.journal?1:0,l.nophone?1:0,l.shower?1:0,l.social?1:0,l.sunlight?1:0,l.morning_routine?1:0,l.nightly_routine?1:0,l.youtube||'',l.alcohol?1:0,l.pmo?1:0,l.caffeine||'',l.nicotine||'',`"${(l.note||'').replace(/"/g,'""')}"`].join(',');});
   const csv=[headers.join(','),...rows].join('\n'),blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=`habits-${todayKey()}.csv`;a.click();URL.revokeObjectURL(url);
 }
