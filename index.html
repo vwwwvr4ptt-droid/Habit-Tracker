@@ -635,6 +635,7 @@ function dc(id){if(aCharts[id]){aCharts[id].destroy();delete aCharts[id];}}
 function metricHit(log,metric){
   if(!log)return false;
   switch(metric){
+    case'exercise':return!!log.gym;
     case'water':return(log.water||0)>=100;
     case'sleep':return(log.sleep||0)>=8;
     case'steps':return(log.steps||0)>=10000;
